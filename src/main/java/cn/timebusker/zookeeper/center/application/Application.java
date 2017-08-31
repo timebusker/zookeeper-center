@@ -16,8 +16,6 @@ import cn.timebusker.zookeeper.center.client.ZookeeperClient;
 import cn.timebusker.zookeeper.center.systemconfig.ZookeeperConfig;
 import cn.timebusker.zookeeper.center.viewresolver.JsonViewResolver;
 
-@EnableAutoConfiguration
-@Configuration
 @ComponentScan("cn.timebusker.zookeeper.center")//指定扫描包
 @EnableConfigurationProperties({ZookeeperConfig.class})
 @SpringBootApplication//启动器
