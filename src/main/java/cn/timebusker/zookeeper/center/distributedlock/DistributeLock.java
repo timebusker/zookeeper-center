@@ -12,8 +12,12 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.data.Stat;
 
 import cn.timebusker.zookeeper.center.client.ZookeeperClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DistributeLock implements Watcher {
+
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     /**
      * 锁根节点 持久化节点， 该节点目录用于存放所有业务的锁
      */
@@ -71,7 +75,7 @@ public class DistributeLock implements Watcher {
     public void tryLock() throws Exception {
         try {
             currrentSubPath = zookeeperClient.create(subLockPath, null, CreateMode.EPHEMERAL_SEQUENTIAL);
-            System.out.println("创建竞争节点：" + currrentSubPath);
+            LOG.info("创建竞争节点：" + currrentSubPath);
             if (this.isMinNode()) {
                 this.getLockSuccess();
             }
@@ -84,8 +88,8 @@ public class DistributeLock implements Watcher {
     }
 
     public void getLockSuccess() throws Exception {
-        System.out.println("节点" + currrentSubPath + "成功获取锁.");
-        System.out.println("节点" + currrentSubPath + "执行工作...");
+        LOG.info("节点" + currrentSubPath + "成功获取锁.");
+        LOG.info("节点" + currrentSubPath + "执行工作...");
         worker.doWork();
         releaseLock();
     }
@@ -104,10 +108,10 @@ public class DistributeLock implements Watcher {
         int index = subNodes.indexOf(currrentSubPath.substring((bussLockPath).length() + 1));
         switch (index) {
             case -1:
-                System.out.println("节点不存在." + currrentSubPath);
+                LOG.info("节点不存在." + currrentSubPath);
                 break;
             case 0:
-                System.out.println("我是最小的节点." + currrentSubPath);
+                LOG.info("我是最小的节点." + currrentSubPath);
                 return true;
             default:
                 //等待的前一个节点
@@ -118,7 +122,7 @@ public class DistributeLock implements Watcher {
                     return false;
                 } catch (KeeperException e) {
                     if (!zookeeperClient.exists(preSubPath, false)) {
-                        System.out.println("前面的节点" + preSubPath + "消失了...");
+                        LOG.info("前面的节点" + preSubPath + "消失了...");
                         return isMinNode();
                     } else {
                         throw e;
@@ -135,7 +139,7 @@ public class DistributeLock implements Watcher {
      * @throws InterruptedException
      */
     public void releaseLock() throws KeeperException, InterruptedException {
-        System.out.println("节点" + currrentSubPath + "工作完毕释放锁...");
+        LOG.info("节点" + currrentSubPath + "工作完毕释放锁...");
         zookeeperClient.delete(currrentSubPath);
         zookeeperClient.releaseConnection();
     }
@@ -151,10 +155,10 @@ public class DistributeLock implements Watcher {
         //成功连接服务器
         if (KeeperState.SyncConnected == event.getState()) {
             if (EventType.None == event.getType()) {
-                System.out.println("zookeeper connect success");
+                LOG.info("zookeeper connect success");
             } else if (EventType.NodeDeleted == event.getType() && event.getPath().equals(preSubPath)) {
                 //监听到等待的前一个节点已经消失了，尝试获取锁
-                System.out.println("前面的节点(" + preSubPath + ")已经消失了，节点(" + currrentSubPath + ")尝试获取锁.");
+                LOG.info("前面的节点(" + preSubPath + ")已经消失了，节点(" + currrentSubPath + ")尝试获取锁.");
                 try {
                     if (isMinNode()) {
                         getLockSuccess();
@@ -165,11 +169,11 @@ public class DistributeLock implements Watcher {
                 }
             }
         } else if (KeeperState.Disconnected == event.getState()) {
-            System.out.println("zookeeper Disconnected");
+            LOG.info("zookeeper Disconnected");
         } else if (KeeperState.AuthFailed == event.getState()) {
-            System.out.println("zookeeper AuthFailed");
+            LOG.info("zookeeper AuthFailed");
         } else if (KeeperState.Expired == event.getState()) {
-            System.out.println("zookeeper Expired");
+            LOG.info("zookeeper Expired");
         }
     }
 

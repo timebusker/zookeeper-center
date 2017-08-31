@@ -16,9 +16,6 @@ public class JsonResult {
 
     /**
      * 通过指定参数创建json返回值对象
-     *
-     * @param success 是否成功
-     * @param message 信息
      */
     public JsonResult(boolean success, String message) {
         this.success = success;
@@ -43,8 +40,7 @@ public class JsonResult {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this,
-                ToStringStyle.SHORT_PREFIX_STYLE);
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
 

@@ -16,8 +16,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 import cn.timebusker.zookeeper.center.entity.NodeData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZookeeperClient implements Watcher {
+
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
     /**
      * 实例
      */
@@ -29,7 +33,7 @@ public class ZookeeperClient implements Watcher {
     /**
      * 超时时间
      */
-    private int sessionTimeout = 5000;
+    private int sessionTimeout = 50000;
     /**
      * 长度为1的计数器 用于处理zk连接是否成功
      */
@@ -44,10 +48,9 @@ public class ZookeeperClient implements Watcher {
         zookeeper = new ZooKeeper(this.connectString, this.sessionTimeout, this);
         boolean isConnectin = connectedLatch.await(20l, TimeUnit.SECONDS);
         if (isConnectin) {
-            System.out.println("connecting zookeeper server success.");
+            LOG.info("connecting zookeeper server success.");
         } else {
-            System.out.println("connecting zookeeper server failed.");
-            //throw new Exception("connecting zookeeper server failed.");
+            LOG.info("connecting zookeeper server failed.");
         }
     }
 
@@ -122,16 +125,16 @@ public class ZookeeperClient implements Watcher {
         //成功连接服务器
         if (KeeperState.SyncConnected == event.getState()) {
             if (EventType.None == event.getType()) {
-                System.out.println("zookeeper connect success");
+                LOG.info("zookeeper connect success");
                 //成功连接，计数器-1
                 connectedLatch.countDown();
             }
         } else if (KeeperState.Disconnected == event.getState()) {
-            System.out.println("zookeeper Disconnected");
+            LOG.info("zookeeper Disconnected");
         } else if (KeeperState.AuthFailed == event.getState()) {
-            System.out.println("zookeeper AuthFailed");
+            LOG.info("zookeeper AuthFailed");
         } else if (KeeperState.Expired == event.getState()) {
-            System.out.println("zookeeper Expired");
+            LOG.info("zookeeper Expired");
         }
 
     }
@@ -175,7 +178,7 @@ public class ZookeeperClient implements Watcher {
             if (zookeeper != null) {
                 zookeeper.close();
             }
-            System.out.println("zookeeper disconnect.");
+            LOG.info("zookeeper disconnect.");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -33,15 +33,7 @@ public class ZkServerInfoDaoImpl implements ZkServerInfoDao {
     private Map<Integer, ZkServerInfo> zkServerInfoMap = new HashMap<Integer, ZkServerInfo>();
 
     @Override
-    public List<ZkServerInfo> getZkServerInfoByPage(int pageIndex, int pageSize)
-            throws Exception {
-        /*List<ZkServerInfo> serverInfos = new ArrayList<ZkServerInfo>();
-		Collection<ZkServerInfo> collection =  zkServerInfoMap.values();
-		Iterator<ZkServerInfo> iterator = collection.iterator();
-		while (iterator.hasNext()) {
-			ZkServerInfo info = iterator.next();
-			serverInfos.add(info);
-		}*/
+    public List<ZkServerInfo> getZkServerInfoByPage(int pageIndex, int pageSize) throws Exception {
         final List<ZkServerInfo> serverInfos = new ArrayList<ZkServerInfo>();
         jdbcTemplate.query("select * from t_server_info", new Object[]{}, new RowCallbackHandler() {
             @Override

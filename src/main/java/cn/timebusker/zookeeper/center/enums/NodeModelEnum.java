@@ -44,6 +44,7 @@ public enum NodeModelEnum {
     public String getString(){
         return this.val.toString();
     }
+
     public static NodeModelEnum getInstance(String val) {
         for (NodeModelEnum buss : NodeModelEnum.values()) {
             if (buss.getVal().equals(val)) {

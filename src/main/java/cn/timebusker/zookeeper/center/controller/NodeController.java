@@ -19,7 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cn.timebusker.zookeeper.center.entity.NodeData;
 
-@EnableAutoConfiguration
 @RestController
 @RequestMapping("/node")
 public class NodeController {
